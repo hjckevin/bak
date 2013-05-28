@@ -7,6 +7,7 @@ Created on 2013-2-18
 import os, sys
 import time
 import zipfile
+import tarfile
 
 from nsccdbbak.common import platform
 
@@ -167,16 +168,18 @@ class ConnMysql(object):
         elif platform.is_linux():
             dump_dir = self.bkdir + '/' + timestamp
             dump_file = dump_dir + '/' + timestamp + '_incr.sql'
-            gz_file = dump_dir + '/' + timestamp + '_incr.tar.gz'
+            tar_file = dump_dir + '/' + timestamp + '_incr.tar.gz'
             log_file = dump_dir + '/' + timestamp + '_incr.log'
             options = '-h' + self.conf['serip'][0] + ' -u' + self.conf['seruser'][0] + ' -p' + self.conf['serpass'][0] + ' --all-databases'
             
             os.system('mkdir -p ' + dump_dir)
             os.system('chmod 777 -R ' + dump_dir)
             if os.system('mysqlbinlog ' + options + ' > ' + dump_file) == 0:
-                os.system('tar cvzf ' + gz_file + ' ' + dump_file + ' >> ' + log_file + ' 2>&1')
+                tarfile = tarfile.open(tar_file, 'w:gz')
+                tarfile.add(dump_file)
+                tarfile.close()
                 os.system('echo "DataBase Backup Success!" >> ' + log_file)
-                return True, gz_file
+                return True, tar_file
             else:
                 os.system('echo "DataBase Backup Failed! >> ' + log_file)
                 return False, None
@@ -195,19 +198,21 @@ class ConnMysql(object):
         pass    
     
     def recover_glob(self, bakfile):
-        tmpdir = os.path.dirname(bakfile)
-        mimetype = os.path.splitext(bakfile)[1]
+        options = '-h' + self.conf['serip'][0] + ' -u' + self.conf['seruser'][0] + ' -p' + self.conf['serpass'][0]
         
-        if mimetype == 'zip':
-            fileobj = zipfile.ZipFile(bakfile)
-            filename = fileobj.namelist()[0]
-            outfile = open(os.pardir.join(), 'wb')
-            outfile.write(fileobj.read(filename))
-            outfile.close()
-            
-            pass
-        elif mimetype == 'gz':
-            
+        if zipfile.is_zipfile(bakfile):
+            file_obj = zipfile.ZipFile(bakfile)
+            file_name = file_obj.namelist()[0]
+            sql_file = open(self.bakdir + "\\" + file_name, 'wb')
+            sql_file.write(file_obj.read(file_name))
+            sql_file.close()
+            os.system("mysql " + options + " < " + sql_file)           
+        elif tarfile.is_tarfile(bakfile):
+            tar_file = tarfile.open(bakfile, 'r|gz')
+            if "sql" in tar_file[0]:
+                tar_file.extract(tar_file[0], self.bkdir)
+                sql_file = self.bkdir + '/' + tar_file[0]
+                os.system("mysql " + options + " < " + sql_file)
             pass
         else:
             print 'Unkown bakfile type!'
@@ -272,7 +277,7 @@ class ConnDatabase(object):
         elif self.conf['dbtype'][0] == "Oracle":
             self.conn = ConnOracle(self.conf)
         else:
-            pass
+            print "Unkown Database Type!"
     
     def get(self):
         self.dbs = self.conn.getdbs()
