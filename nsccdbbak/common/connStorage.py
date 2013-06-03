@@ -7,6 +7,8 @@ Created on 2013-2-18
 '''
 
 import os
+import sys
+
 
 from keystoneclient.v2_0 import client
 from swiftclient import Connection, ClientException, HTTPException
@@ -15,6 +17,7 @@ try:
     from simplejson import loads as json_loads
 except ImportError:
     from json import loads as json_loads
+from hashlib import md5
 
 class ConnStorage(object):
     '''
@@ -106,8 +109,53 @@ class ConnStorage(object):
         self.swift.head_object(conname, objname)
         pass
     
-    def download_object(self, conname, objname):
-        pass
+    def download_object(self, conname, objname, dest_path):
+        try:
+            headers, body = self.swift.get_object(conname, objname, resp_chunk_size=65536)
+            content_type = headers.get('content-type')
+            if 'content-type' in headers:
+                content_length = int(headers.get('content-length'))
+            else:
+                content_length = None
+            etag = headers.get('etag')
+            path = os.path.join(dest_path, objname) or objname
+            if path[:1] in ('/', '\\'):
+                path = path[1:]    
+            md5sum = None
+            if content_type.split(';', 1)[0] == 'text/directory':
+                read_length = 0
+                if 'x-object-manifest' not in headers:
+                    md5sum = md5()
+                for chunk in body:
+                    read_length += len(chunk)
+                    if md5sum:
+                        md5sum.update(chunk)
+            else:
+                dirpath = os.path.dirname(path)
+                fp = open(path, 'wb')
+                read_length = 0
+                if 'x-object-manifest' not in headers:
+                    md5sum = md5()
+                for chunk in body:
+                    fp.write(chunk)
+                    read_length += len(chunk)
+                    if md5sum:
+                        md5sum.update(chunk)
+                fp.close()
+                
+            if md5sum and md5sum.hexdigest() != etag:
+                print '%s: md5sum != etag, %s != %s' %(path, md5sum.hexdigest(), etag)
+            if content_length is not None and read_length != content_length:
+                print '%s: read_length != content_length, %d != %d' %(path, read_length, content_length)   
+            
+        except ClientException, err:
+            if err.http_status != 404:
+                raise
+            print 'Object %s not found' % repr('%s/%s' % (conname, objname))
+    
+#    def download_container(self, conname, dest_path):
+#        
+#        pass
     
     def delete_container(self, conname):
         self.swift.delete_container(conname)

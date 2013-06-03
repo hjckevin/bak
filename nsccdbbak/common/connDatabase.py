@@ -186,15 +186,6 @@ class ConnMysql(object):
         else:
             print 'Unkown System Type!'
             sys.exit(1)
-        pass
-        
-    def recover_from_bak(self, bakfile):
-        if platform.is_windows():
-            pass
-        elif platform.is_linux():
-            pass
-        else:
-            pass
         pass    
     
     def recover_glob(self, bakfile):

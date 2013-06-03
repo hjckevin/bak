@@ -60,6 +60,7 @@ class MainFrame(object):
         self.dialogDeleteStor = self.builder.get_object('dialogDeleteStor')
         self.dialogDeleteServer = self.builder.get_object('dialogDeleteServer')
         self.dialogRecover = self.builder.get_object('dialogRecover')
+        self.dialogFile = self.builder.get_object('filechooserdialogDownload')
         
         self.radioGlob = self.builder.get_object('radiobuttonGlob')
         self.radioIncr = self.builder.get_object('radiobuttonIncr')
@@ -392,6 +393,17 @@ class MainFrame(object):
         else:
             self.response = self.dialogDeleteServer.run()
             self.dialogDeleteServer.hide()   
+            
+    def on_buttonDelServer1_clicked(self, object, data=None):
+        self.ServerConfig.delete(self.serInfo)
+        self.loadServersInfo()
+        self.serverTreeDisplay()
+        pass
+    
+    def on_buttonDelServer2_clicked(self, object, data=None):
+        self.dialogDeleteServer.hide()
+        pass
+    
     def bkDatabase(self, widgt, event):
         '''
         即时备份操作，需要用户输入保存到的容器名。
@@ -586,14 +598,62 @@ class MainFrame(object):
             connStor.head_object(self.storInfo['conname'], self.storInfo['objname'])
         pass
     def downloadStor(self, widgt, event):
+        self.entryFileName = self.builder.get_object('entryFileName')
+        if self.storInfo['objname'] != None:
+            self.entryFileName.set_text(self.storInfo['objname'])
+            self.response = self.dialogFile.run()
+        else:
+#            self.entryFileName.set_text(self.storInfo['conname'])
+            pass
+            
+        
+        pass
+    def on_buttonSaveObj_clicked(self, object, data=None):
         connStor = ConnStorage(self.serInfo)
+        dest_path = self.dialogFile.get_current_folder()
+        if self.storInfo['objname'] == None:
+#            connStor.download_container(self.storInfo['conname'], dest_path)
+            pass
+        else:
+            connStor.download_object(self.storInfo['conname'], self.storInfo['objname'], dest_path)
+        print dest_path
+        self.dialogFile.hide()
+        pass
+    def on_buttonCancelObj_clicked(self, object, data=None):
+        self.dialogFile.hide()
         pass
     def deleteStor(self, widgt, event):
         self.response = self.dialogDeleteStor.run()
         self.dialogDeleteStor.hide()    
         pass
+    def on_buttonDelStor1_clicked(self, object, data=None):
+        connStor = ConnStorage(self.serInfo)
+        if self.storInfo['objname'] == None:
+            connStor.delete_container(self.storInfo['conname'])
+        else:
+            connStor.delete_object(self.storInfo['conname'], self.storInfo['objname'])
+        
+        self.connStorage(object, data)
+        pass
+    def on_buttonDelStor2_clicked(self, object, data=None):
+        self.dialogDeleteStor.hide()
+        pass
+    
     def recoverStor(self, widgt, event):
-        self.response = self.dialogRecover.run()
+        if self.storInfo['objname'] == None:
+            self.warnDial.set_markup("错误！请选择一个备份文件。")
+            self.response = self.warnDial.run()
+            self.warnDial.hide()
+        else:
+            self.response = self.dialogRecover.run()
+            self.dialogRecover.hide()
+        pass
+    def on_buttonRecover1_clicked(self, object, data=None):
+        conndb = ConnDatabase(self.serInfo)
+        connstor = ConnStorage(self.serInfo)
+        conndb.conn.bkdir
+        pass
+    def on_buttonRecover2_clicked(self, object, data=None):
         self.dialogRecover.hide()
         pass
     def storTree_buttonPress(self, widgt, event):
@@ -611,40 +671,7 @@ class MainFrame(object):
                 self.storInfo = {'conname':item, 'objname':None} 
             if event.button == 3:
                 self.popMemuStor.popup(None, None, None, event.button, event.time)
-            
-                
-    def on_buttonDelServer1_clicked(self, object, data=None):
-        self.ServerConfig.delete(self.serInfo)
-        self.loadServersInfo()
-        self.serverTreeDisplay()
-        pass
     
-    def on_buttonDelServer2_clicked(self, object, data=None):
-        self.dialogDeleteServer.hide()
-        pass
-    
-    def on_buttonDelStor1_clicked(self, object, data=None):
-        connStor = ConnStorage(self.serInfo)
-        if self.storInfo['objname'] == '':
-            connStor.delete_container(self.storInfo['conname'])
-        else:
-            connStor.delete_object(self.storInfo['conname'], self.storInfo['objname'])
-        
-        self.connStorage(object, data)
-        pass
-    
-    def on_buttonDelStor2_clicked(self, object, data=None):
-        self.dialogDeleteStor.hide()
-        pass
-    
-    def on_buttonRecover1_clicked(self, object, data=None):
-        
-        pass
-    
-    def on_buttonRecover2_clicked(self, object, data=None):
-        self.dialogRecover.hide()
-        pass
-
 if __name__ == '__main__':
     MainFrame()
     gtk.main()
