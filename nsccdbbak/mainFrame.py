@@ -42,9 +42,8 @@ class MainFrame(object):
         同时加载了程序所需的配置文件，包括服务器配置文件和备份策略配置文件。
         '''
         self.path = self.get_path()
-        
         self.builder = gtk.Builder()
-        self.builder.add_from_file('glade/mainFrame.glade')
+        self.builder.add_from_file(self.path + '/glade/mainFrame.glade')
         self.mainFrame = self.builder.get_object('mainFrame')
         self.builder.connect_signals(self)
 
@@ -94,8 +93,8 @@ class MainFrame(object):
                     dictTmp[key][0] = base64.decodestring(value[0])
 
     def get_path(self):
-#        path = os.path.basename(os.path)
-        pass
+        path = os.getcwd()
+        return path
     def on_aboutDial_activate(self, menuitem, data=None):
         '''
         显示程序的帮助和关于信息。
@@ -605,8 +604,6 @@ class MainFrame(object):
         else:
 #            self.entryFileName.set_text(self.storInfo['conname'])
             pass
-            
-        
         pass
     def on_buttonSaveObj_clicked(self, object, data=None):
         connStor = ConnStorage(self.serInfo)
@@ -651,7 +648,9 @@ class MainFrame(object):
     def on_buttonRecover1_clicked(self, object, data=None):
         conndb = ConnDatabase(self.serInfo)
         connstor = ConnStorage(self.serInfo)
-        conndb.conn.bkdir
+		if self.storInfo['objname'] != None:
+			connstor.download_object(self.storInfo['conname'], self.storInfo['objname'], conndb.conn.bkdir)
+			conndb.conn.recover(conndb.conn.bkdir + "/" + self.storInfo['objname'])
         pass
     def on_buttonRecover2_clicked(self, object, data=None):
         self.dialogRecover.hide()

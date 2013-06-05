@@ -67,7 +67,8 @@ class ConnMysql(object):
             timestamp = str(time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime(time.time())))
             dump_dir = self.bkdir + '\\' + timestamp
             dump_file = dump_dir + '\\' + timestamp + '_glob.sql'
-            zip_file = dump_dir + '\\' + timestamp + '_glob.zip'
+            zip_file = timestamp + '_glob.zip'
+            zip_file_path = dump_dir + '\\' + zip_file
             log_file = dump_dir + '\\' + timestamp + '_glob.log'
             options = '-h' + self.conf['serip'][0] + ' -u' + self.conf['seruser'][0] + ' -p' + self.conf['serpass'][0] + ' --all-databases '
             
@@ -77,7 +78,7 @@ class ConnMysql(object):
                 myzipfile.write(dump_file)
                 myzipfile.close()
                 os.system('echo "DataBase Backup Success!" >> ' + log_file)
-                return True, zip_file
+                return True, zip_file_path
             else:
                 os.system('echo "DataBase Backup Failed! >> ' + log_file)
                 return False, None
@@ -109,7 +110,8 @@ class ConnMysql(object):
         if platform.is_windows():
             dump_dir = self.bkdir + '\\' + timestamp
             dump_file = dump_dir + '\\' + timestamp + '_glob.sql'
-            zip_file = dump_dir + '\\' + timestamp + '_glob.zip'
+            zip_file = timestamp + '_glob.zip'
+            zip_file_path = dump_dir + '\\' + zip_file
             log_file = dump_dir + '\\' + timestamp + '_glob.log'
             options = '-h' + self.conf['serip'][0] + ' -u' + self.conf['seruser'][0] + ' -p' + self.conf['serpass'][0] + ' --all-databases --flush-logs --master-data=2'
             
@@ -119,7 +121,7 @@ class ConnMysql(object):
                 myzipfile.write(dump_file)
                 myzipfile.close()
                 os.system('echo "DataBase Backup Success!" >> ' + log_file)
-                return True, zip_file
+                return True, zip_file_path
             else:
                 os.system('echo "DataBase Backup Failed! >> ' + log_file)
                 return False, None
@@ -150,7 +152,8 @@ class ConnMysql(object):
         if platform.is_windows():
             dump_dir = self.bkdir + '\\' + timestamp
             dump_file = dump_dir + '\\' + timestamp + '_incr.sql'
-            zip_file = dump_dir + '\\' + timestamp + '_incr.zip'
+            zip_file = timestamp + '_incr.zip'
+            zip_file_path = dump_dir + '\\' + zip_file
             log_file = dump_dir + '\\' + timestamp + '_incr.log'
             options = '-h' + self.conf['serip'][0] + ' -u' + self.conf['seruser'][0] + ' -p' + self.conf['serpass'][0]
             
@@ -160,7 +163,7 @@ class ConnMysql(object):
                 myzipfile.write(dump_file)
                 myzipfile.close()
                 os.system('echo "DataBase Backup Success!" >> ' + log_file)
-                return True, zip_file
+                return True, zip_file_path
             else:
                 os.system('echo "DataBase Backup Failed! >> ' + log_file)
                 return False, None
@@ -188,6 +191,14 @@ class ConnMysql(object):
             sys.exit(1)
         pass    
     
+	def recover(self, bakfile):
+		if 'glob' in bakfile:
+			self.recover_glob(bakfile)
+		elif 'incr' in bakfile:
+			self.recover_incr(bakfile)
+		else:
+			print 'Unkown backup file type!'
+	
     def recover_glob(self, bakfile):
         options = '-h' + self.conf['serip'][0] + ' -u' + self.conf['seruser'][0] + ' -p' + self.conf['serpass'][0]
         

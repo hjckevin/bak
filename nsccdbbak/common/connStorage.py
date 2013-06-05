@@ -111,7 +111,9 @@ class ConnStorage(object):
     
     def download_object(self, conname, objname, dest_path):
         try:
+            print "getting the %s/%s" %(conname, objname)
             headers, body = self.swift.get_object(conname, objname, resp_chunk_size=65536)
+            print headers, body
             content_type = headers.get('content-type')
             if 'content-type' in headers:
                 content_length = int(headers.get('content-length'))
