@@ -18,12 +18,12 @@
 韩捷成</property>
     <property name="documenters">韩捷成</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox2">
+      <object class="GtkVBox" id="dialog-vboxAbout">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area2">
+          <object class="GtkHButtonBox" id="dialog-action_areaAbout">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -41,31 +41,14 @@
       </object>
     </child>
   </object>
-  <object class="GtkAssistant" id="assistantBakpolicy">
-    <property name="can_focus">False</property>
-    <property name="border_width">12</property>
-    <property name="title" translatable="yes">备份策略设定向导</property>
-    <property name="modal">True</property>
-    <property name="window_position">center-always</property>
-    <property name="destroy_with_parent">True</property>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-  </object>
-  <object class="GtkDialog" id="dialogContainer">
+  <object class="GtkDialog" id="dialogContainerName">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="resizable">False</property>
     <property name="window_position">center-always</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkVBox" id="dialog-vboxConname">
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
@@ -1309,7 +1292,7 @@
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkHBox" id="hbox1">
-                        <property name="height_request">80</property>
+                        <property name="height_request">100</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
@@ -1448,234 +1431,75 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHBox" id="box3">
+                      <object class="GtkHBox" id="hbox3">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkFixed" id="fixed3">
+                          <object class="GtkFixed" id="fixedPolicy21">
                             <property name="width_request">20</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
+                            <property name="fill">False</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkFixed" id="fixed5">
+                          <object class="GtkNotebook" id="notebook2">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can_focus">True</property>
+                            <property name="scrollable">True</property>
+                            <property name="enable_popup">True</property>
+                            <property name="homogeneous">True</property>
                             <child>
-                              <object class="GtkLabel" id="label6">
-                                <property name="width_request">100</property>
-                                <property name="height_request">25</property>
+                              <object class="GtkFixed" id="fixedGlobBak">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                            </child>
+                            <child type="tab">
+                              <object class="GtkLabel" id="labelGlobBak">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">全局备份</property>
                               </object>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label8">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">备份周期：</property>
-                              </object>
                               <packing>
-                                <property name="x">30</property>
-                                <property name="y">45</property>
+                                <property name="tab_fill">False</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkLabel" id="label9">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">备份时间：</property>
-                              </object>
-                              <packing>
-                                <property name="x">30</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryGlobHour">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">•</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">110</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label5">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">时</property>
-                              </object>
-                              <packing>
-                                <property name="x">190</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryGlobMinute">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">•</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">220</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label12">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">分</property>
-                              </object>
-                              <packing>
-                                <property name="x">300</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryGlobMonth">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">110</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label21">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">月</property>
-                              </object>
-                              <packing>
-                                <property name="x">190</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryGlobDay">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">●</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">220</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label16">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">日</property>
-                              </object>
-                              <packing>
-                                <property name="x">300</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryGlobWeekDay">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">●</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">330</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label17">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">周</property>
-                              </object>
-                              <packing>
-                                <property name="x">410</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHSeparator" id="hseparator1">
-                                <property name="width_request">400</property>
-                                <property name="height_request">25</property>
+                              <object class="GtkFixed" id="fixedIncrBak">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                               </object>
                               <packing>
-                                <property name="x">80</property>
+                                <property name="position">1</property>
                               </packing>
+                            </child>
+                            <child type="tab">
+                              <object class="GtkLabel" id="labelIncrBak">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">增量备份</property>
+                              </object>
+                              <packing>
+                                <property name="position">1</property>
+                                <property name="tab_fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child type="tab">
+                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -1685,14 +1509,14 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkFixed" id="fixed4">
+                          <object class="GtkFixed" id="fixedPolicy23">
                             <property name="width_request">20</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
+                            <property name="fill">False</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
@@ -1701,258 +1525,6 @@
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHBox" id="box4">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkFixed" id="fixed6">
-                            <property name="width_request">20</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFixed" id="fixed8">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <child>
-                              <object class="GtkLabel" id="label7">
-                                <property name="width_request">100</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">增量备份</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label10">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">备份周期：</property>
-                              </object>
-                              <packing>
-                                <property name="x">30</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label11">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">备份周期：</property>
-                              </object>
-                              <packing>
-                                <property name="x">30</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryIncHour">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">•</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">110</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label13">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">时</property>
-                              </object>
-                              <packing>
-                                <property name="x">190</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryIncMinute">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">•</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">220</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label14">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">分</property>
-                              </object>
-                              <packing>
-                                <property name="x">300</property>
-                                <property name="y">85</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryIncMonth">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">●</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">110</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label18">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">月</property>
-                              </object>
-                              <packing>
-                                <property name="x">190</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryIncDay">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">●</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">220</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label19">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">日</property>
-                              </object>
-                              <packing>
-                                <property name="x">300</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="entryIncWeekDay">
-                                <property name="width_request">80</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">●</property>
-                                <property name="invisible_char_set">True</property>
-                                <property name="primary_icon_activatable">False</property>
-                                <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
-                              </object>
-                              <packing>
-                                <property name="x">330</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label20">
-                                <property name="width_request">20</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="xalign">0.43000000715255737</property>
-                                <property name="label" translatable="yes">周</property>
-                              </object>
-                              <packing>
-                                <property name="x">410</property>
-                                <property name="y">45</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHSeparator" id="hseparator2">
-                                <property name="width_request">400</property>
-                                <property name="height_request">25</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                              </object>
-                              <packing>
-                                <property name="x">80</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkFixed" id="fixed7">
-                            <property name="width_request">20</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
@@ -2002,6 +1574,7 @@
                   </object>
                   <packing>
                     <property name="position">2</property>
+                    <property name="tab_fill">False</property>
                   </packing>
                 </child>
                 <child type="tab">
@@ -2030,7 +1603,7 @@
         </child>
         <child>
           <object class="GtkHBox" id="hbox2">
-            <property name="height_request">25</property>
+            <property name="height_request">30</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
@@ -2039,6 +1612,18 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="spacing">2</property>
+                <child>
+                  <object class="GtkSpinner" id="spinnerStatus">
+                    <property name="width_request">30</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">True</property>

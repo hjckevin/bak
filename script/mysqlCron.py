@@ -35,16 +35,16 @@ class bakCron(object):
         
     def get_filepath(self):
         ''' 
-                                获取配置文件的路径，此路径在软件安装时指定目录。
+        获取配置文件的路径，此路径在软件安装时指定目录。
         '''
-        policyfile = os.path.dirname(os.getcwd()) + "\\conf\\Policy.conf"
-        serverfile = os.path.dirname(os.getcwd()) + "\\conf\\Server.conf"
+        policyfile = os.path.dirname(os.getcwd()) + "/conf/Policy.conf"
+        serverfile = os.path.dirname(os.getcwd()) + "/conf/Server.conf"
 
         return policyfile, serverfile
     
     def assign_jobs(self):
         '''
-                                读取配置文件，获得针对不同数据库的备份策略，设定备份线程。
+        读取配置文件，获得针对不同数据库的备份策略，设定备份线程。
         '''
         (policyfile, serverfile) = self.get_filepath()
 
@@ -77,7 +77,7 @@ class bakCron(object):
                    
     def assign_monitor(self):
         '''
-                                设定文件监控线程。
+        设定文件监控线程。
         '''
         self.sched.add_interval_job(self.monitorfile, name = 'monitorDaemon')
         print self.sched.get_jobs()
@@ -85,7 +85,7 @@ class bakCron(object):
     
     def filechange(self, monitor, file1, file2, evt_type):
         '''
-                                备份策略文件发生变化时，撤销计划列表中除文件监控以外的所有计划，然后重新设定备份线程。
+        备份策略文件发生变化时，撤销计划列表中除文件监控以外的所有计划，然后重新设定备份线程。
         '''
         if evt_type == gio.FILE_MONITOR_EVENT_CHANGED: 
             print 'file changed'              
@@ -98,7 +98,7 @@ class bakCron(object):
    
     def monitorfile(self):   
         '''
-                                启动文件监控线程，并允许多线程运行环境。
+        启动文件监控线程，并设定多线程运行环境。
         '''      
         gfile = gio.File(self.filepath)
         monitor = gfile.monitor_file(gio.FILE_MONITOR_NONE, None)
@@ -109,7 +109,7 @@ class bakCron(object):
            
     def glob_bak(self, serConf, bakcontainer):
         '''
-                                负责执行一次全局备份，将备份文件上传至云存储。
+        负责执行一次全局备份，将备份文件上传至云存储。
         '''
         timestr = time.strftime(r"%Y-%m-%d_%H-%M-%S", time.localtime())
         print timestr
@@ -123,7 +123,7 @@ class bakCron(object):
     
     def incr_bak(self, serConf, bakcontainer):
         '''
-                                负责执行一次增量备份，将备份文件上传至云存储。
+        负责执行一次增量备份，将备份文件上传至云存储。
         '''
         conndb = ConnDatabase(serConf)
         connStor = ConnStorage(serConf)

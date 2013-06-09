@@ -1,4 +1,3 @@
-
 # -*-coding:utf-8 -*-
 '''
 Created on 2013-2-18
@@ -16,7 +15,7 @@ import ConfigParser
 
 class ParseError(Exception):
     '''
-                    错误解析函数，负责输出错误信息。
+    错误解析函数，负责输出错误信息。
     '''
     def __init__(self, message, lineno, line):
         self.msg = message
@@ -47,7 +46,7 @@ class ConfigFilePraser(object):
     
     def _get_section(self, line):
         '''
-                                负责解析含有'[]‘的行，相当于某一节的命名信息。
+        负责解析含有'[]‘的行，相当于某一节的命名信息。
         '''
         if line[-1] != ']':
             return self.error_no_section_end_bracket(line)
@@ -58,7 +57,7 @@ class ConfigFilePraser(object):
     
     def _split_key_value(self, line):
         '''
-                                分离一行的信息，以键值对的形式返回。
+        分离一行的信息，以键值对的形式返回。
         '''
         colon = line.find(':')
         equal = line.find('=')
@@ -79,7 +78,7 @@ class ConfigFilePraser(object):
 	
     def load(self, sectionlength):
         '''
-                                装载某个配置文件，sectionlength指定了一节的行货，包括节头含有'[]'的那行。
+        装载某个配置文件，sectionlength指定了一节的行数，包括节头含有'[]'的那行。
         '''
         try:
             fp = open(self.file, "r")
@@ -121,7 +120,7 @@ class ConfigFilePraser(object):
                 
     def save(self, serverInfo):
         '''
-                                保存给定字典内键值对到配置文件中。
+        保存给定字典内键值对到配置文件中。
         '''
         
         sec = None
