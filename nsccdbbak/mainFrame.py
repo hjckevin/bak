@@ -651,18 +651,20 @@ class MainFrame(object):
 			elif 'incr' in bakfile:
 				dict_tmp = {}
 				objlist = connstor.getContainerList(self.storInfo['conname'])
-				for objname in objlist if 'glob' in objname:
-					timestamp = float(connstor.head_object(self.storInfo['conname'], objname)get('x-timestamp'))
-					dict_tmp[timestamp] = objname
+				for objname in objlist:
+					if 'glob' in objname:
+						timestamp = float(connstor.head_object(self.storInfo['conname'], objname).get('x-timestamp'))
+						dict_tmp[timestamp] = objname
 				glob_bakfile = max(dict_tmp.itervalues(), key = lambda k:k)
 				glob_timestamp = dict_tmp.keys()[dict_tmp.values().index(glob_bakfile)]
 				dict_tmp.clear()
-				for objname in objlist if 'incr' in objname:
-					timestamp = float(connstor.head_object(self.storInfo['conname'], objname)get('x-timestamp'))
-					if timestamp <= glob_timestamp:
-						pass
-					else:
-						dict_tmp[timestamp] = objname
+				for objname in objlist:
+					if 'incr' in objname:
+						timestamp = float(connstor.head_object(self.storInfo['conname'], objname).get('x-timestamp'))
+						if timestamp <= glob_timestamp:
+							pass
+						else:
+							dict_tmp[timestamp] = objname
 				# timestamp_list = sorted(dict_tmp.iterkeys(), key=lambda k:k[0])
 				# incr_bakfile_list = []
 				# for item in timestamp_list:

@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: nsccdbbak
+Version: 2013.5
+Summary: A backup system for mysql database, stores the backup file on Swift
+Home-page: UNKNOWN
+Author: nscc-tj
+Author-email: hanjc@nscc-tj.gov.cn
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

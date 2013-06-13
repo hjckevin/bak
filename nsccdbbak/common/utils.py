@@ -51,5 +51,10 @@ def hostname():
 	else:  
 		return 'Unkwon hostname'  
 
+def test():
+	print "this is just a test"
+
+
 if __name__ == '__main__':
 	print hostname()
+	print test()
