@@ -29,7 +29,7 @@ import MySQLdb
 from nsccdbbak.common.configFilePraser import ConfigFilePraser
 from nsccdbbak.common.connDatabase import ConnDatabase
 from nsccdbbak.common.connStorage import ConnStorage
-from nsccdbbak.common import platform
+from nsccdbbak.common import utils
 
 
 class MainFrame(object):
@@ -536,10 +536,10 @@ class MainFrame(object):
 		'''
 		检查备份脚本是否为自启动服务，如果不是需要添加到系统自启动服务。
 		'''
-		if platform.is_windows():
+		if utils.is_windows():
 			scriptdir = 'C:\\Users\\Administrator\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\'
 			copy = 'copy '
-		elif platform.is_linux():
+		elif utils.is_linux():
 			scriptdir = '/etc/init.d/'
 			copy = 'cp '
 		else:

@@ -12,7 +12,7 @@ import zipfile
 import tarfile
 import ConfigParser
 
-from nsccdbbak.common import platform
+from nsccdbbak.common import utils
 
 try:
 	import MySQLdb
@@ -34,9 +34,9 @@ class ConnMysql(object):
 		'''
 		Constructor
 		'''
-		if platform.is_windows():
+		if utils.is_windows():
 			self.bkdir = os.environ['TMP']
-		elif platform.is_linux():
+		elif utils.is_linux():
 			self.bkdir = '/var/tmp/mysqlbak'
 		else:
 			print 'Unkown System Type!'
@@ -49,7 +49,7 @@ class ConnMysql(object):
 		self.logbinpath = self._get_logbin_path()
 		
 	def _get_logbin_path(self):
-		if platform.is_windows():
+		if utils.is_windows():
 			try:
 				cursor = self.conn.cursor()
 				cursor.execute("show variables like 'basedir'")
@@ -58,7 +58,7 @@ class ConnMysql(object):
 				
 			except MySQLdb.Error, e:
 				print 'MySQL Error %d: %s' % (e.args[0], e.args[1])
-		elif platform.is_linux():
+		elif utils.is_linux():
 			inipath = '/etc/mysql/my.cnf'
 		else:
 			print 'Unkown System Type!'
@@ -77,7 +77,7 @@ class ConnMysql(object):
 			if logbin_path != None:
 				return datadir.strip('\"') + '/' + logbin_path
 			else:
-				return datadir.strip('\"') + '/' + platform.hostname() + '-bin'
+				return datadir.strip('\"') + '/' + utils.hostname() + '-bin'
 		elif os.path.isabs(logbin_path):
 			cursor.close()
 			return logbin_path.strip('\"')
@@ -107,7 +107,7 @@ class ConnMysql(object):
 		raise
 			
 	def bk_now(self):
-		if platform.is_windows():
+		if utils.is_windows():
 			timestamp = str(time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime(time.time())))
 			dump_dir = self.bkdir + '\\' + timestamp
 			dump_file = dump_dir + '\\' + timestamp + '_glob.sql'
@@ -128,7 +128,7 @@ class ConnMysql(object):
 				os.system('echo "DataBase Backup Failed! >> ' + log_file)
 				return False, None
 			pass
-		elif platform.is_linux():
+		elif utils.is_linux():
 			timestamp = str(time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime(time.time())))
 			dump_dir = self.bkdir + '/' + timestamp
 			dump_file = dump_dir + '/' + timestamp + '_glob.sql'
@@ -155,7 +155,7 @@ class ConnMysql(object):
 	def glob_bak(self):
 		timestamp = str(time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime(time.time())))
 		
-		if platform.is_windows():
+		if utils.is_windows():
 			dump_dir = self.bkdir + '\\' + timestamp
 			dump_file = dump_dir + '\\' + timestamp + '_glob.sql'
 			zip_file = timestamp + '_glob.zip'
@@ -175,7 +175,7 @@ class ConnMysql(object):
 				os.system('echo "DataBase Backup Failed! >> ' + log_file)
 				return False, None
 			pass
-		elif platform.is_linux():
+		elif utils.is_linux():
 			dump_dir = self.bkdir + '/' + timestamp
 			dump_file = dump_dir + '/' + timestamp + '_glob.sql'
 			gz_file = dump_dir + '/' + timestamp + '_glob.tar.gz'
@@ -201,7 +201,7 @@ class ConnMysql(object):
 	def incr_bak(self, starttime, stoptime):
 		timestamp = str(time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime(time.time())))
 		
-		if platform.is_windows():
+		if utils.is_windows():
 			dump_dir = self.bkdir + '\\' + timestamp
 			zip_file = timestamp + '_incr.zip'
 			zip_file_path = dump_dir + '\\' + zip_file
@@ -221,7 +221,7 @@ class ConnMysql(object):
 				os.system('echo "DataBase Backup Failed! >> ' + log_file)
 				return False, None
 			pass
-		elif platform.is_linux():
+		elif utils.is_linux():
 			dump_dir = self.bkdir + '/' + timestamp
 			tar_file = dump_dir + '/' + timestamp + '_incr.tar.gz'
 			log_file = dump_dir + '/' + timestamp + '_incr.log'
@@ -282,9 +282,9 @@ class ConnOracle(object):
 	def __init__(self, conf):
 		self.conf = conf
 		self.dbs = {}
-		if platform.is_windows():
-			self.bkdir = 'C:\\'
-		elif platform.is_linux():
+		if utils.is_windows():
+			self.bkdir = os.environ['TMP']
+		elif utils.is_linux():
 			self.bkdir = '/var/tmp/mysqlbak'
 		else:
 			print 'Unkown System Type!'
@@ -345,7 +345,7 @@ if __name__ == '__main__':
 		'seruser':['scott'], 'serpass':['admin']}
 	confMysql = {'serip':['127.0.0.1'], 'serport':['3306'],
 		'seruser':['root'], 'serpass':['root']}
-	sys = platform.get_platform_name()
+	sys = utils.get_platform_name()
 	# print sys, os.environ["TMP"]
 	# con = ConnOracle(confOracle)
 	# dbs = con.getdbs()
