@@ -32,15 +32,15 @@ class ConnStorage(object):
 		根据配置文件初始化连接Swift云存储的客户端，包括认证系统和存储系统。
 		'''
 		self.conf = conf
-		colon = conf['storuser'][0].find(":")
+		colon = conf['storuser'].find(":")
 		if colon > 0 :
-			self.user = conf['storuser'][0][:colon]
-			self.tenant = conf['storuser'][0][colon+1:] 
+			self.user = conf['storuser'][:colon]
+			self.tenant = conf['storuser'][colon+1:] 
 		else:
-			self.user = conf['storuser'][0]
-			self.tenant = conf['storuser'][0]
-		self.pawd = conf['storpass'][0] 
-		self.authurl = "http://" + conf['storip'][0] + ":" + conf['storport'][0] + "/v2.0/"
+			self.user = self.tenant = conf['storuser']
+		print self.user, self.tenant
+		self.pawd = conf['storpass']
+		self.authurl = "http://" + conf['storip'] + ":" + conf['storport'] + "/v2.0/"
 		
 		self.keystone = client.Client(username="admin", password="admin",
 									tenant_name="admin", auth_url=self.authurl)        
@@ -179,8 +179,8 @@ class ConnStorage(object):
 		pass
 	
 if __name__ == '__main__':
-	conf = {'storip':['172.31.201.116'], 'storport':['5000'], 
-			'storuser':['demotest:demotest'], 'storpass':['admin']}
+	conf = {'storip':'172.31.201.116', 'storport':'5000', 
+			'storuser':'demotest:demotest', 'storpass':'admin'}
 	con = ConnStorage(conf)
 	
 	tenantlist = con.getTenantList()

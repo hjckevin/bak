@@ -1,3 +1,5 @@
+# -*-coding:utf-8 -*-
+
 '''
 Created on 2013-4-18
 
@@ -37,24 +39,19 @@ def is_darwin():
 	return __platform__ == PLATFORM_DARWIN
 	
 def hostname():  
-	if is_windows():  
-		hostname = os.getenv('computername')  
-		return hostname  
+	import socket
+	return socket.gethostname()
 
-	elif is_linux:  
-		host = os.popen('echo $HOSTNAME')  
-		try:  
-			hostname = host.read()  
-			return hostname  
-		finally:  
-			host.close()  
-	else:  
-		return 'Unkwon hostname'  
+class ParseError(Exception):
+    '''
+	错误解析函数，负责输出错误信息。
+    '''
+    def __init__(self, message, linenum):
+        self.msg = message
+        self.lineno = linenum
 
-def test():
-	print "this is just a test"
-
+    def __str__(self):
+        return 'at line %d: %s' % (self.linenum, self.msg)
 
 if __name__ == '__main__':
 	print hostname()
-	print test()

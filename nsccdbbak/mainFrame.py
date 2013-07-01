@@ -24,6 +24,7 @@ except:
 	
 import os
 import base64
+import ConfigParser
 import MySQLdb
 
 from nsccdbbak.common.configFilePraser import ConfigFilePraser
@@ -36,6 +37,9 @@ class MainFrame(object):
 	'''
 	定义主窗口类
 	'''
+	lineNum = 0
+	parse_exc = utils.ParseError
+	
 	def __init__(self):
 		'''
 		主窗口初始化，大多数的窗口元素都从glade文件中获取，少数在运行态定义；
@@ -74,22 +78,47 @@ class MainFrame(object):
 		self.mainFrame.show()                       
 		self.serverTreeDisplay()
 		
-	def loadServersInfo(self):
-		self.servers = []
-		print self.servers
-		self.ServerConfig = ConfigFilePraser(self.path + '/conf/Server.conf')
-		self.servers = self.ServerConfig.load(10)
-		print self.servers
-		for dictTmp in self.servers:
-			for key, value in dictTmp.iteritems():
-				print key, value
-				if 'pass' in key:
-					dictTmp[key][0] = base64.decodestring(value[0])
-
 	def get_path(self):
 		path = os.path.dirname(os.path.abspath(__file__))
 		return path
 	
+	def loadServersInfo(self):
+		self.servers = []
+		self.ServerConfig = ConfigParser.ConfigParser(allow_no_value=True)
+		self.ServerConfig.read(self.path + '/conf/Server.conf')
+		
+		for section in self.ServerConfig.sections():
+			dictTmp = {}
+			colon = section.find(':')
+			key, value = section[:colon], section[colon + 1:]
+			dictTmp[key] = value
+			for key, value in self.ServerConfig.items(section):
+				if 'pass' in key:
+					dictTmp[key] = base64.decodestring(value)
+				else:
+					dictTmp[key] = value
+					
+			self.servers.append(dictTmp.copy())
+			dictTmp.clear()
+
+	def saveServersInfo(self, serverInfo):
+		if 'server' in serverInfo.keys():
+			sec = 'server' + ":" + serverInfo['server']
+			try:
+				if sec not in self.ServerConfig.sections():
+					self.ServerConfig.add_section(sec)    
+				for key in serverInfo.keys():
+					if key != 'server':
+						self.ServerConfig.set(sec, key, serverInfo[key])
+			except:
+				raise self.parse_exc('Repeated section', self.lineNum)                
+		else:
+			raise self.parse_exc('Invalid section', self.lineNum)
+			
+		
+		with open(self.path + '/conf/Server.conf', 'wb') as configfile:
+			self.ServerConfig.write(configfile)
+				
 	def on_aboutDial_activate(self, menuitem, data=None):
 		'''
 		显示程序的帮助和关于信息。
@@ -123,11 +152,13 @@ class MainFrame(object):
 			liststore.append([1, "MySQL"])
 			liststore.append([2, "Oracle"])        
 			self.comboboxDatabase.set_model(liststore)
+			
+			cell = gtk.CellRendererText()
+			self.comboboxDatabase.pack_start(cell, True)
+			self.comboboxDatabase.add_attribute(cell, 'text', 0)
+			self.comboboxDatabase.set_active(0)
 		
-		cell = gtk.CellRendererText()
-		self.comboboxDatabase.pack_start(cell, True)
-		self.comboboxDatabase.add_attribute(cell, 'text', 1)
-		self.comboboxDatabase.set_active(0)
+		
 		
 		self.frameNewServer.set_title("新建数据库")
 		self.frameNewServer.show()
@@ -188,11 +219,10 @@ class MainFrame(object):
 			self.response = self.warnDial.run()
 			self.warnDial.hide()
 		else:
-			self.ServerConfig.save(self.serInfo)
+			self.frameNewServer.hide()
+			self.saveServersInfo(self.serInfo)
 			self.loadServersInfo()
 			self.serverTreeDisplay()
-		
-		self.frameNewServer.hide()
 		
 	def serverTreeDisplay(self):      
 		'''
@@ -214,14 +244,13 @@ class MainFrame(object):
 			treeStore.clear()
 		
 		try:
-			print self.servers
 			for dictTmp in self.servers:
-				item = treeStore.append(None, dictTmp['server'])
+				item = treeStore.append(None, dictTmp['server'].split(','))
 				sortdict = sorted(dictTmp.iteritems(), key=lambda d:d[0])
 				for i in xrange(len(sortdict)):
 					key = sortdict[i]
-					if key[0] != 'server':
-						value = key[0] + " : [" + key[1][0] + "]"                
+					if key[0] != 'server' or 'pass' not in key[0]:
+						value = key[0] + " : [" + key[1] + "]"                
 						treeStore.append(item, [value])     
 					
 		except IOError, e:
@@ -357,22 +386,22 @@ class MainFrame(object):
 			self.warnDial.hide()
 		else:        
 			self.newServerInit() 
-			if self.serInfo['dbtype'][0] == 'MySQL':
+			if self.serInfo['dbtype'] == 'MySQL':
 				self.comboboxDatabase.set_active(1)
-			elif self.serInfo['dbtype'][0] == 'Oracle':
+			elif self.serInfo['dbtype'] == 'Oracle':
 				self.comboboxDatabase.set_active(2)
 			else:
 				self.comboboxDatabase.set_active(0)
 			
-			self.builder.get_object('entrySerName').set_text(self.serInfo['server'][0])
-			self.builder.get_object('entrySerIP').set_text(self.serInfo['serip'][0])
-			self.builder.get_object('entrySerPort').set_text(self.serInfo['serport'][0])
-			self.builder.get_object('entrySerUser').set_text(self.serInfo['seruser'][0])
-			self.builder.get_object('entrySerPass').set_text(self.serInfo['serpass'][0])
-			self.builder.get_object('entryStorIP').set_text(self.serInfo['storip'][0])
-			self.builder.get_object('entryStorPort').set_text(self.serInfo['storport'][0])
-			self.builder.get_object('entryStorUser').set_text(self.serInfo['storuser'][0])
-			self.builder.get_object('entryStorPass').set_text(self.serInfo['storpass'][0])
+			self.builder.get_object('entrySerName').set_text(self.serInfo['server'])
+			self.builder.get_object('entrySerIP').set_text(self.serInfo['serip'])
+			self.builder.get_object('entrySerPort').set_text(self.serInfo['serport'])
+			self.builder.get_object('entrySerUser').set_text(self.serInfo['seruser'])
+			self.builder.get_object('entrySerPass').set_text(self.serInfo['serpass'])
+			self.builder.get_object('entryStorIP').set_text(self.serInfo['storip'])
+			self.builder.get_object('entryStorPort').set_text(self.serInfo['storport'])
+			self.builder.get_object('entryStorUser').set_text(self.serInfo['storuser'])
+			self.builder.get_object('entryStorPass').set_text(self.serInfo['storpass'])
 			
 			self.frameNewServer.set_title('修改服务器')
 			self.frameNewServer.show_all()          
@@ -405,6 +434,7 @@ class MainFrame(object):
 		self.statusbar.get_context_id('backInfo')
 		self.statusbar.push(0, "备份数据库")
 		
+		print self.serInfo
 		conndb = ConnDatabase(self.serInfo)
 		connStor = ConnStorage(self.serInfo)
 		(result, bakfilepath) = conndb.conn.bk_now()
@@ -427,7 +457,7 @@ class MainFrame(object):
 		self.connStorage(widgt, event)      
 	def serverTree_buttonPress(self, widgt, event):
 		'''
-		选中服务器，弹出操作菜单。
+		选中服务器，弹出右键操作菜单。
 		'''
 		treeSelect = self.serverTree.get_selection()
 		treeSelect.set_mode(gtk.SELECTION_SINGLE)
@@ -438,18 +468,11 @@ class MainFrame(object):
 			if type(iterparent) == type(iter):
 				parent = treeStore.get_value(iterparent, 0)
 				for dictTmp in self.servers:                            
-					if dictTmp['server'][0] == parent:
-#                        for key, value in dictTmp.iteritems():
-#                            print key, value
-#                            if 'pass' in key:
-#                                dictTmp[key][0] = base64.decodestring(value[0])
+					if dictTmp['server'] == parent:
 						self.serInfo = dictTmp
 			else:
 				for dictTmp in self.servers:                            
-					if dictTmp['server'][0] == item:
-#                        for key, value in dictTmp.iteritems():
-#                            if 'pass' in key:
-#                                dictTmp[key][0] = base64.decodestring(value[0])
+					if dictTmp['server'] == item:
 						self.serInfo = dictTmp
 					
 			if event.button == 3:            
@@ -509,7 +532,8 @@ class MainFrame(object):
 		
 	def on_buttonApplyPolicy_clicked(self, object, data=None):
 		'''
-		保存修改的备份策略，写入配置文件，若为初次执行，则添加备份脚本到系统自启动程序目录，然后运行该备份策略。
+		保存修改的备份策略，写入配置文件，若为初次执行，则添加备份脚本到系统
+		自启动程序目录，然后运行该备份策略。
 		'''
 		globmonth = self.builder.get_object('entryGlobMonth').get_text()
 		globday = self.builder.get_object('entryGlobDay').get_text()
@@ -537,7 +561,8 @@ class MainFrame(object):
 		检查备份脚本是否为自启动服务，如果不是需要添加到系统自启动服务。
 		'''
 		if utils.is_windows():
-			scriptdir = 'C:\\Users\\Administrator\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\'
+			scriptdir = 'C:\\Users\\Administrator\\AppData\\Roaming\\Microsoft\\Windows \
+						\\Start Menu\\Programs\\Startup\\'
 			copy = 'copy '
 		elif utils.is_linux():
 			scriptdir = '/etc/init.d/'
@@ -560,6 +585,9 @@ class MainFrame(object):
 			os.system('python ' + '"' + scriptdir + bakscript + '"')
 
 	def popMemuStorInit(self):
+		'''
+		云存储右键弹出菜单
+		'''
 		popMenu = gtk.Menu()
 		
 		head_item = gtk.MenuItem("查看")
@@ -584,107 +612,129 @@ class MainFrame(object):
 		popMenu.append(recover_item)
 		return popMenu
 	def headStor(self, widgt, event):
+		'''
+		获取云存储容器或对象的详细信息
+		'''
 		print self.serInfo
 		connStor = ConnStorage(self.serInfo)
-		if self.storInfo['objname'] == None:
-			connStor.head_container(self.storInfo['conname'])
+		if self.storInfo['objname'] is None:
+			info = connStor.head_container(self.storInfo['conname'])
 		else:
-			connStor.head_object(self.storInfo['conname'], self.storInfo['objname'])
-		pass
+			info = connStor.head_object(self.storInfo['conname'], self.storInfo['objname'])
+		info_str = " "
+		for key, value in info.items():
+			info_str += key + " : " + str(value) + "\n"
+		self.warnDial.set_markup(info_str)
+		self.response = self.warnDial.run()
+		self.warnDial.hide()
+		
 	def downloadStor(self, widgt, event):
+		'''
+		下载云存储中的对象，由用户选择存放位置
+		'''
 		self.entryFileName = self.builder.get_object('entryFileName')
-		if self.storInfo['objname'] != None:
-			self.entryFileName.set_text(self.storInfo['objname'])
-			self.response = self.dialogFile.run()
-		else:
+		if self.storInfo['objname'] is None:
 #            self.entryFileName.set_text(self.storInfo['conname'])
 			pass
-		pass
+		else:
+			self.entryFileName.set_text(self.storInfo['objname'])
+			self.response = self.dialogFile.run()
 	def on_buttonSaveObj_clicked(self, object, data=None):
 		connStor = ConnStorage(self.serInfo)
 		dest_path = self.dialogFile.get_current_folder()
-		if self.storInfo['objname'] == None:
+		if self.storInfo['objname'] is None:
+		# 不提供针对整个容器的下载
 #            connStor.download_container(self.storInfo['conname'], dest_path)
 			pass
 		else:
 			connStor.download_object(self.storInfo['conname'], self.storInfo['objname'], dest_path)
-		print dest_path
 		self.dialogFile.hide()
-		pass
+
 	def on_buttonCancelObj_clicked(self, object, data=None):
 		self.dialogFile.hide()
-		pass
+		
 	def deleteStor(self, widgt, event):
+		'''
+		删除云存储中的容器或对象
+		'''
 		self.response = self.dialogDeleteStor.run()
 		self.dialogDeleteStor.hide()    
-		pass
 	def on_buttonDelStor1_clicked(self, object, data=None):
 		connStor = ConnStorage(self.serInfo)
-		if self.storInfo['objname'] == None:
+		if self.storInfo['objname'] is None:
 			connStor.delete_container(self.storInfo['conname'])
 		else:
 			connStor.delete_object(self.storInfo['conname'], self.storInfo['objname'])
 		
 		self.connStorage(object, data)
-		pass
 	def on_buttonDelStor2_clicked(self, object, data=None):
 		self.dialogDeleteStor.hide()
-		pass
+
 	def recoverStor(self, widgt, event):
-		if self.storInfo['objname'] == None:
+		'''
+		将选定的云存储备份文件还原到数据库
+		'''
+		if self.storInfo['objname'] is None:
 			self.warnDial.set_markup("错误！请选择一个备份文件。")
 			self.response = self.warnDial.run()
 			self.warnDial.hide()
 		else:
 			self.response = self.dialogRecover.run()
 			self.dialogRecover.hide()
-		pass
+
 	def on_buttonRecover1_clicked(self, object, data=None):
 		conndb = ConnDatabase(self.serInfo)
 		connstor = ConnStorage(self.serInfo)
-		if self.storInfo['objname'] != None:
-			if 'glob' in bakfile:
-				connstor.download_object(self.storInfo['conname'], 
-										 self.storInfo['objname'], 
-										 conndb.conn.bkdir)
-				conndb.conn.recover_glob(conndb.conn.bkdir + "/" + self.storInfo['objname'])
-			elif 'incr' in bakfile:
+		if self.storInfo['objname'][0] is not None:
+			if 'glob' in self.storInfo['objname'][0]:
+			# 从全局备份恢复
+				connstor.download_object(self.storInfo['conname'][0], 
+										self.storInfo['objname'][0], 
+										conndb.conn.bkdir)
+				conndb.conn.recover_glob(conndb.conn.bkdir + "/" + self.storInfo['objname'][0])
+			elif 'incr' in self.storInfo['objname'][0]:
+			# 从增量备份恢复
+				timestop = float(connstor.head_object(self.storInfo['conname'][0], \
+							self.storInfo['objname'][0]).get('x-timestamp'))
 				dict_tmp = {}
-				objlist = connstor.getContainerList(self.storInfo['conname'])
+				objlist = connstor.getContainerList(self.storInfo['conname'][0])
 				for objname in objlist:
 					if 'glob' in objname:
-						timestamp = float(connstor.head_object(self.storInfo['conname'], objname).get('x-timestamp'))
+					# 首先查找时间最近的一次全局备份
+						timestamp = float(connstor.head_object(self.storInfo['conname'][0], \
+									objname).get('x-timestamp'))
 						dict_tmp[timestamp] = objname
 				glob_bakfile = max(dict_tmp.itervalues(), key = lambda k:k)
 				glob_timestamp = dict_tmp.keys()[dict_tmp.values().index(glob_bakfile)]
 				dict_tmp.clear()
 				for objname in objlist:
 					if 'incr' in objname:
-						timestamp = float(connstor.head_object(self.storInfo['conname'], objname).get('x-timestamp'))
-						if timestamp <= glob_timestamp:
-							pass
-						else:
+					# 然后查找该全局备份后所有的增量备份，到选中的增量备份为止
+						timestamp = float(connstor.head_object(self.storInfo['conname'][0], \
+									objname).get('x-timestamp'))
+						if timestamp >= glob_timestamp and timestamp <= timestop:
 							dict_tmp[timestamp] = objname
 				# timestamp_list = sorted(dict_tmp.iterkeys(), key=lambda k:k[0])
 				# incr_bakfile_list = []
 				# for item in timestamp_list:
-					# incr_bakfile_list.append(timestamp_list[item])
+				# incr_bakfile_list.append(timestamp_list[item])
 				incr_bakfile_list = sorted(dict_tmp.itervaluse(), key=lambda k:k[0])
 				self.recover_glob(glob_bakfile)
 				self.recover_incr(incr_bakfile_list)
 			else:
 				print 'Unkown backup file type!'
-			
-		pass
 	def on_buttonRecover2_clicked(self, object, data=None):
 		self.dialogRecover.hide()
-		pass
+
 	def storTree_buttonPress(self, widgt, event):
+		'''
+		在云存储显示列表中右键时，弹出菜单。
+		'''
 		treeSelect = self.storTable.get_selection()
 		treeSelect.set_mode(gtk.SELECTION_SINGLE)
 		(treeStore, iter) = treeSelect.get_selected()
 		
-		if iter != None:
+		if iter is not None:
 			item = treeStore.get_value(iter, 0)
 			iterparent = treeStore.iter_parent(iter)
 			if type(iterparent) == type(iter):

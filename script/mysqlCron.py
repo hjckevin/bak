@@ -19,6 +19,7 @@ import gobject
 
 from apscheduler.scheduler import Scheduler
 
+import nsccdbbak
 from nsccdbbak.common.configFilePraser import ConfigFilePraser
 from nsccdbbak.common.connDatabase import ConnDatabase
 from nsccdbbak.common.connStorage import ConnStorage
@@ -37,8 +38,8 @@ class bakCron(object):
         ''' 
         获取配置文件的路径，此路径在软件安装时指定目录。
         '''
-        policyfile = os.path.dirname(os.getcwd()) + "/conf/Policy.conf"
-        serverfile = os.path.dirname(os.getcwd()) + "/conf/Server.conf"
+        policyfile = os.path.dirname(nsccdbbak.__file__) + "/conf/Policy.conf"
+        serverfile = os.path.dirname(nsccdbbak.__file__) + "/conf/Server.conf"
 
         return policyfile, serverfile
     
