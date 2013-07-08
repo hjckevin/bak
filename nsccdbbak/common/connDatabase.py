@@ -128,7 +128,7 @@ class ConnMysql(object):
 			dump_file = dump_dir + '\\' + timestamp + '_glob.sql'
 			zip_file_path = dump_dir + '\\' + timestamp + '_glob.zip'
 			log_file = dump_dir + '\\' + timestamp + '_glob.log'
-			options = '-h' + self.conf['serip'] + ' -u' + self.conf['seruser'] \
+			options = ' -h' + self.conf['serip'] + ' -u' + self.conf['seruser'] \
 					+ ' -p' + self.conf['serpass'] + ' --all-databases '
 			
 			os.mkdir(dump_dir)
@@ -316,7 +316,7 @@ class ConnOracle(object):
 		if not os.path.exists(self.bkdir):
 			os.mkdir(self.bkdir)
 	
-	def getdbs(self):
+	def get_dbs(self):
 		'''
 		获取用户空间内的表信息
 		'''
@@ -386,7 +386,6 @@ class ConnOracle(object):
 			print 'Unkown System Type!'
 			sys.exit(1)
 		
-
 	def glob_bak(self):
 		pass
 	

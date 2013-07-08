@@ -14,7 +14,7 @@ try:
 	import pygtk
 	pygtk.require('2.0')
 except:
-	pass
+	pass 
 import sys
 try:
 	import gtk
@@ -27,7 +27,6 @@ import base64
 import ConfigParser
 import MySQLdb
 
-from nsccdbbak.common.configFilePraser import ConfigFilePraser
 from nsccdbbak.common.connDatabase import ConnDatabase
 from nsccdbbak.common.connStorage import ConnStorage
 from nsccdbbak.common import utils
@@ -69,8 +68,8 @@ class MainFrame(object):
 		self.popMemuServer = self.popMenuServerInit()  
 		self.popMemuStor = self.popMemuStorInit()     
 		
-		self.PolicyConfig = ConfigFilePraser(self.path + '/conf/Policy.conf')
 		self.loadServersInfo()
+		self.loadPolicyInfo()
 
 		self.serInfo = {}
 		self.storInfo = {}
@@ -119,6 +118,43 @@ class MainFrame(object):
 		with open(self.path + '/conf/Server.conf', 'wb') as configfile:
 			self.ServerConfig.write(configfile)
 				
+	def loadPolicyInfo(self):		
+		self.policys = []
+		self.PolicyConfig = ConfigParser.ConfigParser(allow_no_value=True)
+		self.PolicyConfig.read(self.path + '/conf/Policy.conf')	
+		
+		for section in self.PolicyConfig.sections():
+			dictTmp = {}
+			colon = section.find(':')
+			key, value = section[:colon], section[colon + 1:]
+			dictTmp[key] = value
+			for key, value in self.PolicyConfig.items(section):
+				if 'pass' in key:
+					dictTmp[key] = base64.decodestring(value)
+				else:
+					dictTmp[key] = value
+					
+			self.policys.append(dictTmp.copy())
+			dictTmp.clear()
+	
+	def savePolicyInfo(self, policyInfo):
+		if 'server' in policyInfo.keys():
+			sec = 'server' + ":" + policyInfo['server']
+			try:
+				if sec not in self.PolicyConfig.sections():
+					self.PolicyConfig.add_section(sec)    
+				for key in policyInfo.keys():
+					if key != 'server':
+						self.PolicyConfig.set(sec, key, policyInfo[key])
+			except:
+				raise self.parse_exc('Repeated section', self.lineNum)                
+		else:
+			raise self.parse_exc('Invalid section', self.lineNum)
+			
+		
+		with open(self.path + '/conf/Policy.conf', 'wb') as configfile:
+			self.PolicyConfig.write(configfile)
+	
 	def on_aboutDial_activate(self, menuitem, data=None):
 		'''
 		显示程序的帮助和关于信息。
@@ -140,7 +176,16 @@ class MainFrame(object):
 	def on_display_stor(self, object, data=None):
 		self.notebookR.set_current_page(1)
 		print 'dislpay stor tree'
-	
+		
+	def on_display_policy(self, object, data=None):
+		self.notebookR.set_current_page(2)
+		self.builder.get_object('radiobuttonOnce').clicked()
+		self.builder.get_object('radiobuttonWeekday').hide()
+		self.builder.get_object('radiobuttonDay').hide()
+		self.builder.get_object('radiobuttonEvery').hide()
+		self.builder.get_object('radiobuttonEveryDay').set_label("日期")
+		print 'display policy'
+		
 	def newServerInit(self):
 		'''
 		初始化新建数据库窗口。
@@ -158,8 +203,6 @@ class MainFrame(object):
 			self.comboboxDatabase.add_attribute(cell, 'text', 0)
 			self.comboboxDatabase.set_active(0)
 		
-		
-		
 		self.frameNewServer.set_title("新建数据库")
 		self.frameNewServer.show()
 		
@@ -170,7 +213,7 @@ class MainFrame(object):
 		self.newServerInit()
 		self.dataBaseType = None                   
 
-	def on_combobox1_changed(self, widget, data=None):
+	def on_comboboxDatabase_changed(self, widget, data=None):
 		'''
 		选择数据库类型
 		'''
@@ -210,9 +253,6 @@ class MainFrame(object):
 		新建、修改服务器信息完成后保存到配置文件。
 		'''
 		self.serInfo = self.get_SerInfo()
-		servernames = []
-		for dictTmp in self.servers:
-			servernames.append(dictTmp['server'][0])
 	
 		if '' in self.serInfo.values():
 			self.warnDial.set_markup('错误！请完整填写服务器和存储信息！')
@@ -234,8 +274,6 @@ class MainFrame(object):
 			columnTree.pack_start(cell, True)
 			columnTree.add_attribute(cell, "text", 0)
 			self.serverTree.insert_column(columnTree, 0)
-		else:
-			pass
 		
 		if self.serverTree.get_model() == None:
 			treeStore = gtk.TreeStore(str)
@@ -482,25 +520,24 @@ class MainFrame(object):
 		'''
 		配置备份策略，显示服务器原有备份策略。
 		'''
-		self.notebookR.set_current_page(2)
+		self.on_display_policy(object, data)
 		
-		policys = self.PolicyConfig.load(13)
-		for dictTmp in policys:
+		for dictTmp in self.policys:
 			if dictTmp['server'] == self.serInfo['server']:
-				self.builder.get_object('entryBakContainer').set_text(dictTmp['bakcon'][0])
-				self.builder.get_object('entryGlobMonth').set_text(dictTmp['globmonth'][0])
-				self.builder.get_object('entryGlobDay').set_text(dictTmp['globday'][0])
-				self.builder.get_object('entryGlobWeekDay').set_text(dictTmp['globweekday'][0])
-				self.builder.get_object('entryGlobHour').set_text(dictTmp['globhour'][0])
-				self.builder.get_object('entryGlobMinute').set_text(dictTmp['globminute'][0])
-				self.builder.get_object('entryIncMonth').set_text(dictTmp['incmonth'][0])
-				self.builder.get_object('entryIncDay').set_text(dictTmp['incday'][0])
-				self.builder.get_object('entryIncWeekDay').set_text(dictTmp['incweekday'][0])
-				self.builder.get_object('entryIncHour').set_text(dictTmp['inchour'][0])
-				self.builder.get_object('entryIncMinute').set_text(dictTmp['incminute'][0])
-				if dictTmp['flag'][0] == '1':
+				self.builder.get_object('entryBakContainer').set_text(dictTmp['bakcon'])
+				self.builder.get_object('entryGlobMonth').set_text(dictTmp['globmonth'])
+				self.builder.get_object('entryGlobDay').set_text(dictTmp['globday'])
+				self.builder.get_object('entryGlobWeekDay').set_text(dictTmp['globweekday'])
+				self.builder.get_object('entryGlobHour').set_text(dictTmp['globhour'])
+				self.builder.get_object('entryGlobMinute').set_text(dictTmp['globminute'])
+				self.builder.get_object('entryIncMonth').set_text(dictTmp['incmonth'])
+				self.builder.get_object('entryIncDay').set_text(dictTmp['incday'])
+				self.builder.get_object('entryIncWeekDay').set_text(dictTmp['incweekday'])
+				self.builder.get_object('entryIncHour').set_text(dictTmp['inchour'])
+				self.builder.get_object('entryIncMinute').set_text(dictTmp['incminute'])
+				if dictTmp['flag'] == '1':
 					self.builder.get_object('label41').set_text('正在运行')
-				elif dictTmp['flag'][0] == '0':
+				elif dictTmp['flag'] == '0':
 					self.builder.get_object('label41').set_text('停止运行')
 				else:
 					self.builder.get_object('label41').set_text('无')
@@ -528,7 +565,7 @@ class MainFrame(object):
 					'incmonth':'', 'incday':'', 
 					'incweekday':'', 'inchour':'','incminute':''}
 		
-		self.PolicyConfig.save(policyInfo)            
+		self.savePolicyInfo(policyInfo)            
 		
 	def on_buttonApplyPolicy_clicked(self, object, data=None):
 		'''
@@ -553,7 +590,7 @@ class MainFrame(object):
 					'incweekday':incweekday, 'inchour':inchour, 'incminute':incminute}        
 		
 		self.addServiceRun()
-		self.PolicyConfig.save(policyInfo)
+		self.savePolicyInfo(policyInfo)
 		self.bkPolicy(object, data)    
 			
 	def addServiceRun(self):
@@ -744,6 +781,24 @@ class MainFrame(object):
 				self.storInfo = {'conname':item, 'objname':None} 
 			if event.button == 3:
 				self.popMemuStor.popup(None, None, None, event.button, event.time)
+	
+	def on_radiobuttonOnce_toggled(self, object, data=None):
+		self.builder.get_object('radiobuttonWeekday').hide()
+		self.builder.get_object('radiobuttonDay').hide()
+		self.builder.get_object('radiobuttonEvery').hide()
+		
+		self.builder.get_object('radiobuttonEveryDay').set_label("指定日期")
+		self.builder.get_object('calendar').show()
+		pass
+	
+	def on_radiobuttonRepeat_toggled(self, object, data=None):
+		self.builder.get_object('radiobuttonWeekday').show()
+		self.builder.get_object('radiobuttonDay').show()
+		self.builder.get_object('radiobuttonEvery').show()
+		
+		self.builder.get_object('radiobuttonEveryDay').set_label("每天")
+		self.builder.get_object('calendar').hide()
+		pass
 	
 if __name__ == '__main__':
 	MainFrame()

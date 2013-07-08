@@ -87,7 +87,7 @@ class ConnStorage(object):
 			
 		return conlist
 	
-	def getObjectList(self,conName):
+	def getObjectList(self, conName):
 		items = self.swift.get_container(container=conName)[1]
 		objlist = []
 		for item in items:
@@ -117,7 +117,6 @@ class ConnStorage(object):
 	def head_container(self, conname):
 		return self.swift.head_container(conname)
 		
-	
 	def head_object(self, conname, objname):
 		return self.swift.head_object(conname, objname)
 	
@@ -166,10 +165,6 @@ class ConnStorage(object):
 			if err.http_status != 404:
 				raise
 			print 'Object %s not found' % repr('%s/%s' % (conname, objname))
-	
-#    def download_container(self, conname, dest_path):
-#        
-#        pass
 	
 	def delete_container(self, conname):
 		self.swift.delete_container(conname)
