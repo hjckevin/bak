@@ -13,6 +13,8 @@ setuptools.setup(
     description="A backup system for mysql database, stores the backup file on Swift",
     author="nscc-tj",
     author_email="hanjc@nscc-tj.gov.cn",
-    packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
-                 
-                 )
+    packages=['nsccdbbak', 'nsccdbbak/glade'],#setuptools.find_packages(exclude=['tests', 'tests.*']),
+    scripts=[
+		  'nsccdbbak/mainFrame.py',
+	],
+)

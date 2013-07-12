@@ -7,7 +7,10 @@ nsccdbbak.egg-info/SOURCES.txt
 nsccdbbak.egg-info/dependency_links.txt
 nsccdbbak.egg-info/top_level.txt
 nsccdbbak/common/__init__.py
-nsccdbbak/common/configFilePraser.py
 nsccdbbak/common/connDatabase.py
 nsccdbbak/common/connStorage.py
 nsccdbbak/common/utils.py
+nsccdbbak/conf/Policy.conf
+nsccdbbak/conf/Server.conf
+nsccdbbak/glade/logo.png
+nsccdbbak/glade/mainFrame.glade

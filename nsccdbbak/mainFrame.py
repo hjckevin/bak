@@ -51,22 +51,23 @@ class MainFrame(object):
 		self.mainFrame = self.builder.get_object('mainFrame')
 		self.builder.connect_signals(self)
 
-		self.serverTree = self.builder.get_object('treeviewSer')
-		self.dbTable = self.builder.get_object('treeviewDatabase')
-		self.storTable = self.builder.get_object('treeviewStorage')
-		self.notebookR = self.builder.get_object('notebookRight')
-		self.statusbar = self.builder.get_object('statusbar')
+		self.serverTree = self.builder.get_object('treeviewSer') # 服务器列表树形结构
+		self.dbTable = self.builder.get_object('treeviewDatabase') # 数据库内容树形结构
+		self.storTable = self.builder.get_object('treeviewStorage') # 云存储内容树形结构
+		self.notebookR = self.builder.get_object('notebookRight') # 主窗口右侧数据库、云存储、备份策略标签页
+		self.notebookPolicy = self.builder.get_object('notebookPolicy') # 备份策略标签页下全局和增量标签
+		self.statusbar = self.builder.get_object('statusbar') # 主窗口底边状态栏
 		
-		self.frameNewServer = self.builder.get_object('frameNewServer')
-		self.warnDial = self.builder.get_object('messagedialog')
+		self.frameNewServer = self.builder.get_object('frameNewServer') # 新建、修改服务器信息子窗口
+		self.warnDial = self.builder.get_object('messagedialog') # 警告信息子窗口
 		
-		self.dialogDeleteStor = self.builder.get_object('dialogDeleteStor')
-		self.dialogDeleteServer = self.builder.get_object('dialogDeleteServer')
-		self.dialogRecover = self.builder.get_object('dialogRecover')
-		self.dialogFile = self.builder.get_object('filechooserdialogDownload')
+		self.dialogDeleteStor = self.builder.get_object('dialogDeleteStor') # 删除云存储确认窗口
+		self.dialogDeleteServer = self.builder.get_object('dialogDeleteServer') # 删除服务器信息确认窗口
+		self.dialogRecover = self.builder.get_object('dialogRecover') # 云存储备份文件恢复到数据库确认窗口
+		self.dialogFile = self.builder.get_object('filechooserdialogDownload') # 指定文件下载路径窗口
 
-		self.popMemuServer = self.popMenuServerInit()  
-		self.popMemuStor = self.popMemuStorInit()     
+		self.popMemuServer = self.popMenuServerInit()  # 服务器列表右键弹出菜单
+		self.popMemuStor = self.popMemuStorInit()     # 云存储右键弹出菜单
 		
 		self.loadServersInfo()
 		self.loadPolicyInfo()
@@ -82,6 +83,9 @@ class MainFrame(object):
 		return path
 	
 	def loadServersInfo(self):
+		'''
+		读取服务器配置文件，把所有服务器信息保存到列表中。
+		'''
 		self.servers = []
 		self.ServerConfig = ConfigParser.ConfigParser(allow_no_value=True)
 		self.ServerConfig.read(self.path + '/conf/Server.conf')
@@ -101,6 +105,10 @@ class MainFrame(object):
 			dictTmp.clear()
 
 	def saveServersInfo(self, serverInfo):
+		'''
+		保存服务器配置文件，把输入服务器信息（一节）保存到文件中。
+		参数：serverInfo为服务器信息字典
+		'''
 		if 'server' in serverInfo.keys():
 			sec = 'server' + ":" + serverInfo['server']
 			try:
@@ -179,11 +187,8 @@ class MainFrame(object):
 		
 	def on_display_policy(self, object, data=None):
 		self.notebookR.set_current_page(2)
-		self.builder.get_object('radiobuttonOnce').clicked()
-		self.builder.get_object('radiobuttonWeekday').hide()
-		self.builder.get_object('radiobuttonDay').hide()
-		self.builder.get_object('radiobuttonEvery').hide()
-		self.builder.get_object('radiobuttonEveryDay').set_label("日期")
+		self.notebookPolicy.set_current_page(0)
+		self.on_radiobuttonOnce_toggled(object, data)
 		print 'display policy'
 		
 	def newServerInit(self):
@@ -202,6 +207,18 @@ class MainFrame(object):
 			self.comboboxDatabase.pack_start(cell, True)
 			self.comboboxDatabase.add_attribute(cell, 'text', 0)
 			self.comboboxDatabase.set_active(0)
+		else:
+			self.comboboxDatabase.set_active(0)
+			
+		self.builder.get_object('entrySerName').set_text('')
+		self.builder.get_object('entrySerIP').set_text('')
+		self.builder.get_object('entrySerPort').set_text('')
+		self.builder.get_object('entrySerUser').set_text('')
+		self.builder.get_object('entrySerPass').set_text('')
+		self.builder.get_object('entryStorIP').set_text('')
+		self.builder.get_object('entryStorPort').set_text('')
+		self.builder.get_object('entryStorUser').set_text('')
+		self.builder.get_object('entryStorPass').set_text('')  
 		
 		self.frameNewServer.set_title("新建数据库")
 		self.frameNewServer.show()
@@ -493,28 +510,7 @@ class MainFrame(object):
 			self.statusbar.push(0, "数据库备份失败")
 	
 		self.connStorage(widgt, event)      
-	def serverTree_buttonPress(self, widgt, event):
-		'''
-		选中服务器，弹出右键操作菜单。
-		'''
-		treeSelect = self.serverTree.get_selection()
-		treeSelect.set_mode(gtk.SELECTION_SINGLE)
-		(treeStore, iter) = treeSelect.get_selected()
-		if iter != None:
-			item = treeStore.get_value(iter, 0)
-			iterparent = treeStore.iter_parent(iter)
-			if type(iterparent) == type(iter):
-				parent = treeStore.get_value(iterparent, 0)
-				for dictTmp in self.servers:                            
-					if dictTmp['server'] == parent:
-						self.serInfo = dictTmp
-			else:
-				for dictTmp in self.servers:                            
-					if dictTmp['server'] == item:
-						self.serInfo = dictTmp
-					
-			if event.button == 3:            
-				self.popMemuServer.popup(None, None, None, event.button, event.time)
+	
 		
 	def bkPolicy(self, object, data=None):
 		'''
@@ -524,17 +520,7 @@ class MainFrame(object):
 		
 		for dictTmp in self.policys:
 			if dictTmp['server'] == self.serInfo['server']:
-				self.builder.get_object('entryBakContainer').set_text(dictTmp['bakcon'])
-				self.builder.get_object('entryGlobMonth').set_text(dictTmp['globmonth'])
-				self.builder.get_object('entryGlobDay').set_text(dictTmp['globday'])
-				self.builder.get_object('entryGlobWeekDay').set_text(dictTmp['globweekday'])
-				self.builder.get_object('entryGlobHour').set_text(dictTmp['globhour'])
-				self.builder.get_object('entryGlobMinute').set_text(dictTmp['globminute'])
-				self.builder.get_object('entryIncMonth').set_text(dictTmp['incmonth'])
-				self.builder.get_object('entryIncDay').set_text(dictTmp['incday'])
-				self.builder.get_object('entryIncWeekDay').set_text(dictTmp['incweekday'])
-				self.builder.get_object('entryIncHour').set_text(dictTmp['inchour'])
-				self.builder.get_object('entryIncMinute').set_text(dictTmp['incminute'])
+				
 				if dictTmp['flag'] == '1':
 					self.builder.get_object('label41').set_text('正在运行')
 				elif dictTmp['flag'] == '0':
@@ -620,6 +606,29 @@ class MainFrame(object):
 			print scriptdir
 			os.system(copy + bakscript + ' "' + scriptdir + '"')
 			os.system('python ' + '"' + scriptdir + bakscript + '"')
+
+	def serverTree_buttonPress(self, widgt, event):
+		'''
+		选中服务器，弹出右键操作菜单。
+		'''
+		treeSelect = self.serverTree.get_selection()
+		treeSelect.set_mode(gtk.SELECTION_SINGLE)
+		(treeStore, iter) = treeSelect.get_selected()
+		if iter != None:
+			item = treeStore.get_value(iter, 0)
+			iterparent = treeStore.iter_parent(iter)
+			if type(iterparent) == type(iter):
+				parent = treeStore.get_value(iterparent, 0)
+				for dictTmp in self.servers:                            
+					if dictTmp['server'] == parent:
+						self.serInfo = dictTmp
+			else:
+				for dictTmp in self.servers:                            
+					if dictTmp['server'] == item:
+						self.serInfo = dictTmp
+					
+			if event.button == 3:            
+				self.popMemuServer.popup(None, None, None, event.button, event.time)
 
 	def popMemuStorInit(self):
 		'''
@@ -756,8 +765,8 @@ class MainFrame(object):
 				# for item in timestamp_list:
 				# incr_bakfile_list.append(timestamp_list[item])
 				incr_bakfile_list = sorted(dict_tmp.itervaluse(), key=lambda k:k[0])
-				self.recover_glob(glob_bakfile)
-				self.recover_incr(incr_bakfile_list)
+				conndb.conn.recover_glob(glob_bakfile)
+				conndb.conn.recover_incr(incr_bakfile_list)
 			else:
 				print 'Unkown backup file type!'
 	def on_buttonRecover2_clicked(self, object, data=None):

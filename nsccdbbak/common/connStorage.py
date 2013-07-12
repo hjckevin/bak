@@ -42,42 +42,42 @@ class ConnStorage(object):
 		self.pawd = conf['storpass']
 		self.authurl = "http://" + conf['storip'] + ":" + conf['storport'] + "/v2.0/"
 		
-		self.keystone = client.Client(username="admin", password="admin",
-									tenant_name="admin", auth_url=self.authurl)        
+#		self.keystone = client.Client(username="admin", password="admin",
+#									tenant_name="admin", auth_url=self.authurl)        
 		self.swift = Connection(authurl=self.authurl, user=self.user, key=self.pawd, 
 								auth_version="2", tenant_name=self.tenant, insecure = True)
 		
-	def getTenantList(self):
-		items = self.keystone.tenants.list()
-		tenantlist=[]
-		for item in items:
-			tenantlist.append(item.name)            
-		return tenantlist
+#	def getTenantList(self):
+#		items = self.keystone.tenants.list()
+#		tenantlist=[]
+#		for item in items:
+#			tenantlist.append(item.name)            
+#		return tenantlist
+#	
+#	def getUserList(self):
+#		items = self.keystone.users.list()
+#		userlist = []
+#		for item in items:
+#			userlist.append(item.name)
+#		return userlist
 	
-	def getUserList(self):
-		items = self.keystone.users.list()
-		userlist = []
-		for item in items:
-			userlist.append(item.name)
-		return userlist
-	
-	def addTenant(self):
-		tenantlist = self.getTenantList()
-		if self.tenant not in tenantlist:
-			self.keystone.tenants.create(tenant_name = self.tenant)
-		else:
-			print "The tenant \"%s\" already existed!" % self.tenant
-	
-	def addUser(self):
-		tenantlist = self.keystone.tenants.list()
-		my_tenant = [x for x in tenantlist if x.name == self.tenant][0]
-		
-		userlist = self.getUserList()
-		if self.user not in userlist:
-			self.keystone.users.create(name = self.tenant, password = self.pawd, 
-									tenant_id = my_tenant.id)
-		else:
-			print "The user \"%s\" already existed under tenant \"%s\"!" % (self.tenant, self.user) 
+#	def addTenant(self):
+#		tenantlist = self.getTenantList()
+#		if self.tenant not in tenantlist:
+#			self.keystone.tenants.create(tenant_name = self.tenant)
+#		else:
+#			print "The tenant \"%s\" already existed!" % self.tenant
+#	
+#	def addUser(self):
+#		tenantlist = self.keystone.tenants.list()
+#		my_tenant = [x for x in tenantlist if x.name == self.tenant][0]
+#		
+#		userlist = self.getUserList()
+#		if self.user not in userlist:
+#			self.keystone.users.create(name = self.tenant, password = self.pawd, 
+#									tenant_id = my_tenant.id)
+#		else:
+#			print "The user \"%s\" already existed under tenant \"%s\"!" % (self.tenant, self.user) 
 	
 	def getContainerList(self):
 		items = self.swift.get_account()[1]
@@ -85,6 +85,7 @@ class ConnStorage(object):
 		for item in items:
 			conlist.append(item.get('name', item.get('hjc')))
 			
+		print conlist
 		return conlist
 	
 	def getObjectList(self, conName):
@@ -177,20 +178,23 @@ if __name__ == '__main__':
 	conf = {'storip':'172.31.201.116', 'storport':'5000', 
 			'storuser':'demotest:demotest', 'storpass':'admin'}
 	con = ConnStorage(conf)
+	con.getContainerList()
 	
-	tenantlist = con.getTenantList()
-	userlist = con.getUserList()
-	print tenantlist
-	print userlist
-
-#    conlist = con.getContainerList()
-#    for conName in conlist:
-#        print conName
-#        objlist = con.getObjectList(conName)
-#        print objlist 
-#    
-	headers = con.head_container('swiftclient')
-	print headers
-	print headers.get('x-container-object-count')
-	dict_tmp = {}
+#	tenantlist = con.getTenantList()
+#	userlist = con.getUserList()
+#	print tenantlist
+#	print userlist
+#
+##    conlist = con.getContainerList()
+##    for conName in conlist:
+##        print conName
+##        objlist = con.getObjectList(conName)
+##        print objlist 
+##    
+##	headers = con.head_container('swiftclient')
+##	print headers
+##	print headers.get('x-container-object-count')
+##	dict_tmp = {}
+#	con.addUser()
+	
 	
